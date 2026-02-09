@@ -3,7 +3,7 @@ name: Daily CSV to Google Sheets
 on:
   schedule:
     # 毎日午前6時（日本時間）に実行
-    - cron: '0 21 * * *'
+    - cron: '0 10 * * *'
   workflow_dispatch: # 手動実行も可能
 
 jobs:
