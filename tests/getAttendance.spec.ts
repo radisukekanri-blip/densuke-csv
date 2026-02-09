@@ -13,8 +13,8 @@ test('CSV自動取得（UTF-8）', async ({ page }) => {
   // もし input[value="utf8"] があればこちらもOK
   // await page.locator('input[value="utf8"]').check();
 
-  // 3. CSV形式で登録データを出力するボタンをクリック（ページ遷移）
-  await page.click('button:has-text("CSV形式で登録データを出力する")');
+  // 3. CSV形式で登録データを出力するボタンをクリック（ページ遷移
+  await page.locator('input[value="CSV形式で登録データを出力する"]').click();
 
   // 4. ページ遷移後、ダウンロードリンクが表示されるのを待つ
   const downloadLink = page.locator('a:has-text("CSVデータを取得する")'); // リンクテキストを実際に合わせる
