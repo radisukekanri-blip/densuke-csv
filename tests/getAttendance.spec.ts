@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { google } from 'googleapis';
-import csvParse from 'csv-parse/lib/sync';
+import { parse as csvParse } from 'csv-parse/sync';
 import dotenv from 'dotenv';
 
 dotenv.config();
