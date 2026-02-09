@@ -1,27 +1,38 @@
-name: Playwright Tests
+name: Densuke CSV Automation
+
+# 実行トリガー
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  schedule:
+    - cron: '0 0 * * *' # 毎日 0時 (UTC) に実行
+  workflow_dispatch: # 手動実行も可能
+
 jobs:
-  test:
-    timeout-minutes: 60
+  download-csv:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      # リポジトリを取得
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Node.js をセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # 依存パッケージをインストール
+      - name: Install dependencies
+        run: npm ci
+
+      # Playwright テストを実行（CSV取得）
+      - name: Run Playwright test
+        run: npx playwright test --headed=false
+
+      # CSVをアーティファクトとして保存
+      - name: Upload CSV as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: attendance-csv
+          path: '**/attendance.csv'
+
