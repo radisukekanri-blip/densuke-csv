@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - name: Run Playwright test for CSV
-        run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新" --headed=false
+        run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新"
         env:
           DENSUKE_URL: ${{ secrets.DENSUKE_URL }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
