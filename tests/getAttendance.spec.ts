@@ -19,8 +19,12 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
   await page.locator('input[value="utf8"]').check();
 
   // CSV取得ボタンをクリックしてページ遷移
-  await page.click('input[value="CSV形式で登録データを出力する"]');
-  await page.waitForNavigation({ waitUntil: 'networkidle' });
+  const csvButton = page.locator('input[value="CSV形式で登録データを出力する"]');
+  await csvButton.waitFor({ state: 'visible', timeout: 60000 });
+  await Promise.all([
+    page.waitForLoadState('networkidle'), // ページ遷移完了を待つ
+    csvButton.click(),
+  ]);
 
   // ダウンロードリンクを取得
   const downloadLink = page.locator('a:has-text("CSVデータを取得する")');
