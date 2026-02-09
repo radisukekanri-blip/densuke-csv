@@ -2,65 +2,59 @@ import { test } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { google } from 'googleapis';
-import csvParse from 'csv-parse/lib/sync'; // npm install csv-parse
+import csvParse from 'csv-parse/lib/sync';
+import dotenv from 'dotenv';
 
-// ====== Google スプレッドシート設定 ======
-const SPREADSHEET_ID = '1a_pvQE-3RxwltpoXAyzkWj4BYEwRwykha0w7c1g0on0';
-const RANGE = '出欠!A1'; // 書き込みたいシートと開始セル
-const SERVICE_ACCOUNT_KEY_PATH = path.resolve(__dirname, 'service-account.json'); // サービスアカウントキーのパス
+dotenv.config();
 
-async function updateSheetFromCSV(csvPath: string) {
+// 環境変数から取得
+const DENSUKE_URL = process.env.DENSUKE_URL!;
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID!;
+
+// サービスアカウントキーのパス
+const SERVICE_ACCOUNT_KEY_PATH = path.resolve(__dirname, '../service-account.json');
+
+// CSVをスプレッドシートにアップデートする関数
+async function updateSheetFromCSV(csvPath: string, spreadsheetId: string) {
   const auth = new google.auth.GoogleAuth({
     keyFile: SERVICE_ACCOUNT_KEY_PATH,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 
-  const client = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: client });
+  const sheets = google.sheets({ version: 'v4', auth });
+  const csvContent = fs.readFileSync(csvPath, 'utf-8');
 
-  // CSVを読み込む
-  const csvData = fs.readFileSync(csvPath, 'utf-8');
-  const records = csvParse(csvData, { skip_empty_lines: true });
+  // CSV を配列に変換
+  const records = csvParse(csvContent, { columns: false, skip_empty_lines: true });
 
-  // スプレッドシートを更新
+  // シートに書き込む
   await sheets.spreadsheets.values.update({
-    spreadsheetId: SPREADSHEET_ID,
-    range: RANGE,
-    valueInputOption: 'USER_ENTERED',
+    spreadsheetId,
+    range: '出欠', // 書き込むシート名
+    valueInputOption: 'RAW',
     requestBody: { values: records },
   });
 
-  console.log('スプレッドシートを更新しました！');
+  console.log('スプレッドシートを更新しました');
 }
 
-// ====== Playwright テスト ======
-test('CSV自動取得（UTF-8） → スプレッドシート更新', async ({ page }) => {
-  // 1. CSV設定ページに移動
-  await page.goto('https://densuke.biz/csvsetting?cd=vEX7LAyBenpetdFk', { waitUntil: 'networkidle' });
+test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
+  // 伝助ページにアクセス
+  await page.goto(DENSUKE_URL, { waitUntil: 'networkidle' });
 
-  // 2. UTF-8ラジオボタンを選択
-  await page.locator('text=UTF-8').click();
+  // UTF-8ラジオボタンを選択
+  await page.locator('input[value="utf8"]').check();
 
-  // 3. CSV形式で登録データを出力するボタンをクリック
-  const csvButton = page.locator('input[value="CSV形式で登録データを出力する"]');
-  await csvButton.waitFor({ state: 'visible', timeout: 60000 });
-  await Promise.all([
-    page.waitForLoadState('networkidle'),
-    csvButton.click(),
-  ]);
-
-  // 4. ダウンロードリンクをクリックして CSV を取得
-  const downloadLink = page.locator('a:has-text("CSVデータを取得する")');
-  await downloadLink.waitFor({ state: 'visible', timeout: 60000 });
-
+  // CSV取得ボタンをクリック
   const downloadPath = path.resolve(__dirname, 'attendance.csv');
   const [download] = await Promise.all([
-    page.waitForEvent('download', { timeout: 60000 }),
-    downloadLink.click(),
+    page.waitForEvent('download'),
+    page.click('input[value="CSV形式で登録データを出力する"]'),
   ]);
   await download.saveAs(downloadPath);
   console.log('CSVを保存しました:', downloadPath);
 
-  // 5. CSVをスプレッドシートにアップロード
-  await updateSheetFromCSV(downloadPath);
+  // スプレッドシートにアップデート
+  await updateSheetFromCSV(downloadPath, SPREADSHEET_ID);
 });
+
