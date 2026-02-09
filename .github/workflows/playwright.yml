@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
       - name: Run Playwright test for CSV
         run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新"
         env:
