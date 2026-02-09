@@ -42,7 +42,7 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
 
   // CSV読み込み
   const csvContent = fs.readFileSync(downloadPath, 'utf-8');
-  const records = csvParse(csvContent, { columns: true, skip_empty_lines: true });
+  const records = csvParse(csvContent, { columns: false, skip_empty_lines: true });
 
   // Google Sheetsに書き込む
   const auth = new google.auth.GoogleAuth({
