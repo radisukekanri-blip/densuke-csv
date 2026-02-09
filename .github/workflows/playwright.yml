@@ -36,9 +36,18 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
-      - name: Notify LINE via GAS
+      - name: Notify LINE via GAS (Success)
+        if: success()
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
           -d '{"status":"success","source":"github-actions"}' \
+          ${{ secrets.GAS_WEBHOOK_URL }}   
+      - name: Notify LINE via GAS (Failure)
+        if: failure()
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d '{"status":"failure","source":"github-actions","error":"${{ github.workflow }} failed"}' \
           ${{ secrets.GAS_WEBHOOK_URL }}
+
