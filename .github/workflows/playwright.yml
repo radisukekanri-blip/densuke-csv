@@ -36,3 +36,9 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
+      - name: Notify LINE via GAS
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d '{"status":"success","source":"github-actions"}' \
+          ${{ secrets.GAS_WEBHOOK_URL }}
