@@ -7,11 +7,16 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// .envから読み込み
-const DENSUKE_URL = process.env.DENSUKE_URL!;
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID!;
+if (process.env.SERVICE_ACCOUNT_JSON) {
+  fs.writeFileSync(path.resolve(__dirname, '../service-account.json'), process.env.SERVICE_ACCOUNT_JSON);
+}
+
+const { DENSUKE_URL, SPREADSHEET_ID } = process.env;
 
 test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
+  if (!DENSUKE_URL || !SPREADSHEET_ID) {
+    throw new Error('.env または GitHub Secrets に DENSUKE_URL と SPREADSHEET_ID を設定してください');
+  }
   // 伝助ページにアクセス
   await page.goto(DENSUKE_URL, { waitUntil: 'networkidle' });
 
