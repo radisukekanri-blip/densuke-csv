@@ -1,38 +1,37 @@
-name: Densuke CSV Automation
+name: Daily CSV to Google Sheets
 
-# 実行トリガー
 on:
   schedule:
-    - cron: '0 0 * * *' # 毎日 0時 (UTC) に実行
+    # 毎日午前6時（日本時間）に実行
+    - cron: '0 21 * * *'
   workflow_dispatch: # 手動実行も可能
 
 jobs:
-  download-csv:
+  update-csv:
     runs-on: ubuntu-latest
 
     steps:
-      # リポジトリを取得
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # Node.js をセットアップ
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 依存パッケージをインストール
       - name: Install dependencies
         run: npm ci
 
-      # Playwright テストを実行（CSV取得）
-      - name: Run Playwright test
-        run: npx playwright test
+      - name: Run Playwright test for CSV
+        run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新" --headed=false
+        env:
+          DENSUKE_URL: ${{ secrets.DENSUKE_URL }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
-      # CSVをアーティファクトとして保存
-      - name: Upload CSV as artifact
+      - name: Upload report (optional)
         uses: actions/upload-artifact@v4
         with:
-          name: attendance-csv
-          path: '**/attendance.csv'
+          name: playwright-report
+          path: playwright-report/
+
 
