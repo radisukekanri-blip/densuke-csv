@@ -27,7 +27,7 @@ jobs:
 
       # Playwright テストを実行（CSV取得）
       - name: Run Playwright test
-        run: npx playwright test --headed=false
+        run: npx playwright test
 
       # CSVをアーティファクトとして保存
       - name: Upload CSV as artifact
