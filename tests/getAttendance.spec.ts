@@ -17,7 +17,7 @@ test('CSV自動取得（UTF-8）', async ({ page }) => {
   await page.click('button:has-text("CSV形式で登録データを出力する")');
 
   // 4. ページ遷移後、ダウンロードリンクが表示されるのを待つ
-  const downloadLink = page.locator('a:has-text("ダウンロード")'); // リンクテキストを実際に合わせる
+  const downloadLink = page.locator('a:has-text("CSVデータを取得する")'); // リンクテキストを実際に合わせる
   await downloadLink.waitFor({ state: 'visible', timeout: 60000 });
 
   // 5. ダウンロードイベントを待ちながらリンクをクリック
