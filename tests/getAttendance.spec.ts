@@ -5,8 +5,8 @@ import { google } from 'googleapis';
 import csvParse from 'csv-parse/lib/sync'; // npm install csv-parse
 
 // ====== Google スプレッドシート設定 ======
-const SPREADSHEET_ID = 'スプレッドシートIDをここに';
-const RANGE = 'Sheet1!A1'; // 書き込みたいシートと開始セル
+const SPREADSHEET_ID = '1a_pvQE-3RxwltpoXAyzkWj4BYEwRwykha0w7c1g0on0';
+const RANGE = '出欠!A1'; // 書き込みたいシートと開始セル
 const SERVICE_ACCOUNT_KEY_PATH = path.resolve(__dirname, 'service-account.json'); // サービスアカウントキーのパス
 
 async function updateSheetFromCSV(csvPath: string) {
