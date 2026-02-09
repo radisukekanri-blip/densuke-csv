@@ -10,3 +10,5 @@ node_modules/
 # Googleサービスアカウントキー
 service-account.json
 
+# 環境変数
+.env
