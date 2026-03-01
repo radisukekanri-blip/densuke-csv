@@ -49,19 +49,20 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
   const csvContent = fs.readFileSync(downloadPath, 'utf-8');
   const records = csvParse(csvContent, { columns: false, skip_empty_lines: true });
 
-  // ① 既存データをクリア
-  await sheets.spreadsheets.values.clear({
-  spreadsheetId: SPREADSHEET_ID,
-  range: '出欠', // シート全体をクリア
-  });
-
   // Google Sheetsに書き込む
   const auth = new google.auth.GoogleAuth({
     keyFile: 'service-account.json',
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
   const sheets = google.sheets({ version: 'v4', auth });
-  
+
+   // ① 既存データをクリア
+  await sheets.spreadsheets.values.clear({
+  spreadsheetId: SPREADSHEET_ID,
+  range: '出欠', // シート全体をクリア
+  });
+
+  // Google Sheetsに書き込む
   const values = records.map(Object.values); // 配列に変換
   await sheets.spreadsheets.values.update({
     spreadsheetId: SPREADSHEET_ID,
